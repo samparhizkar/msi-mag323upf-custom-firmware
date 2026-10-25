@@ -85,18 +85,39 @@ talk DDC don't need `ddc.swift`).
 them** unless you are continuing the research: they can leave the monitor's USB controller stuck until you
 unplug both the USB-C and power cables for 30 seconds.
 
-## Findings worth knowing
+## What we tried that didn't pan out
 
-- **Connect a Mac directly by USB-C.** Direct: 4K up to 160 Hz, DDC works, and wake is clean (display
-  back ~0.6 s after the Mac wakes it). Through an HP USB-C multiport hub on the DP input: 4K capped at
-  60 Hz, unreliable DDC, and a fake unplug on every wake (+~1.2 s; once the display didn't come back until
-  replugged).
-- **Text sharpness on a Mac** is mostly macOS scaling: "looks like 2560×1440" renders 5120×2880 and
-  downsamples to the 4K panel (0.75×), which softens text; "looks like 1920×1080" is pixel-exact but
-  large. macOS uses RGB 10-bit over USB-C, so colour format isn't the problem.
-- **HDMI 2.1** is already advertised at the maximum: 48 Gbps (FRL 12G×4), DSC, VRR 48–160 Hz, ALLM.
-- The version MSI's app reads is hardcoded separately from the OSD label (three instructions in the
-  firmware's USB/DDC command handler); details in [analysis/NOTES.md](analysis/NOTES.md).
+Saving you the time:
+
+- **Native macOS brightness keys and slider.** macOS only offers native brightness control for external
+  displays that speak Apple's USB display protocol, and its driver only accepts Apple displays and the LG
+  UltraFine. The monitor's USB side is a separate Nuvoton microcontroller whose firmware isn't in MSI's
+  update file, so it can't be made to pose as an UltraFine, and a virtual HID device on the Mac is blocked
+  without an Apple entitlement. What works is DDC: `brightness-sync` (or MonitorControl) mirrors the
+  MacBook's brightness to the MSI. The only other route would be extra hardware (a small microcontroller
+  emulating an UltraFine's USB controls), which we didn't pursue.
+- **Faster wake using MSI's own light-sleep mode.** FW.027 already contains a light-sleep path for display
+  sleep (panel off, scaler and memory stay powered), but nothing in the firmware ever turns it on. We
+  forced it on (FW.092/093). Wake from standby didn't get faster on Windows or Mac, because most of the
+  wait is the laptop retraining the DisplayPort link and re-detecting the display. FW.094 leaves it off
+  to save standby power.
+- **Hidden Display P3 / Adobe RGB modes.** Those names exist in the firmware (along with Calibration 1–3),
+  but only as text; this model has no colour tables behind them. The P3 EDID patch is what makes macOS
+  treat the panel as P3.
+- **Porting fixes from newer MSI firmware.** MSI's FW.107 for this model is built for a different hardware
+  revision, so its code can't be moved over. Its sleep-related change (`ResetDPDelay2Sleep`) affects when
+  the monitor goes to sleep, not how fast it wakes, and its HDMI link-error recovery is already in FW.027.
+  The MAG 322UPF and MAG 321UP X24 firmware are different models with nothing transferable.
+- **More HDMI 2.1 bandwidth.** Nothing to unlock: the HDMI EDIDs already advertise the maximum (48 Gbps,
+  DSC, VRR 48–160 Hz, ALLM).
+- **Turning off Auto Scan** in the monitor's menu: no measurable change to wake or reconnect times.
+- **Skipping DisplayPort link training on resume** (considered, not tried). The monitor can advertise
+  "no-handshake" link training with a one-bit change, but the laptop decides whether to use it, and if
+  the link doesn't lock you get a black screen until you replug.
+- **Using a USB-C hub.** Through an HP USB-C multiport hub on the DP input, the Mac saw a fake unplug on
+  every wake (about 1.2 s slower, windows rearranged, and once the display didn't come back until
+  replugged), and 4K was capped at 60 Hz. Plugged directly into the monitor's USB-C, wake is clean
+  (display back about 0.6 s after the Mac wakes it) and 4K runs at up to 160 Hz.
 
 ## Native macOS flashing (research)
 

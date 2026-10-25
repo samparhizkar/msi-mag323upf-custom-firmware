@@ -36,15 +36,16 @@ Windows.
 **Only for the 323UPF on the 0XX firmware line** (stock FW.027, OSD shows FW.0xx). MSI's FW.107 for this
 model is a different hardware revision. Don't use it on other models.
 
-**Mac findings that might save you time**
+**Things I tried that didn't work (so you don't have to)**
 
-- Plug the Mac **directly into the monitor's USB-C**. Direct gave me 4K up to 160 Hz, working DDC and clean
-  wakes. Through an HP USB-C hub on the DP input I got 4K60 max and a fake "unplug" on every wake
-  (windows jumping around, once the display didn't come back until I replugged).
-- Text looking slightly soft at "looks like 2560×1440" is macOS rendering 5K and scaling it down to the
-  4K panel, not the monitor. "Looks like 1920×1080" is pixel-perfect but big.
-- HDMI 2.1 is already advertised at the max (48 Gbps FRL, DSC, VRR 48–160 Hz), so there was nothing to
-  unlock there.
+- **Native macOS brightness keys.** macOS only does native brightness for Apple displays and the LG
+  UltraFine, over a USB protocol the MSI's separate USB chip can't be reprogrammed to speak. The working
+  answer is DDC sync (included), which makes the MacBook's brightness keys and auto-brightness drive the MSI.
+- **MSI's own hidden light-sleep mode.** It's in the stock firmware but never enabled. Forcing it on didn't
+  make wake from standby any faster; the laptop renegotiating DisplayPort is most of the wait.
+- **Hidden P3 / Adobe RGB modes.** Only the names exist in the firmware, no colour data behind them.
+- **USB-C hubs.** Through an HP USB-C hub the Mac saw a fake unplug on every wake and 4K was capped at 60 Hz.
+  Plugged straight into the monitor's USB-C it wakes cleanly and runs 4K at up to 160 Hz.
 
 **Mac tools in the repo:** brightness sync (MacBook brightness keys/auto-brightness also drive the MSI over
 DDC), a white-point matcher, a status/identity reader over USB, and wake/unplug test tools.
