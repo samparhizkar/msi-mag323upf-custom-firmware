@@ -9,6 +9,9 @@ Usage: python3 -I tools/patch_fw027.py [--light-sleep | --093] <stock FW.027 .bi
   --light-sleep: also always light sleep, OSD shows FW.092
   --093:         FW.092 + User-mode factory defaults + Display P3 EDID, OSD shows FW.093
   --094:         FW.093 without the light-sleep patch (stock deep standby), OSD shows FW.094
+  --095:         FW.094 plus the Office Pro Mode relabelled "M-BOOK", OSD shows FW.095
+  --096:         FW.095 + M-BOOK tuned (contrast 50) & made the default mode; User left stock; OSD FW.096
+  --097:         like --096 but M-BOOK matches stock User (brightness/contrast 60); OSD FW.097
 """
 import hashlib
 import struct
@@ -43,6 +46,23 @@ LIGHT_SLEEP = [
 # validity markers (bytes 0-3 and 0x196-0x197) are left alone, so existing user settings
 # survive the flash; the new defaults apply after a factory reset.
 DEFAULTS_TABLE = 0x15897C
+# FW.096 defaults: make the (relabelled) Office/M-BOOK slot the monitor's default state with sane
+# values, and leave the User slot exactly stock. Offsets are into the defaults template.
+MBOOK_DEFAULTS_097 = [
+    (0x141, 0x05, 0x01, "default Pro Mode: sRGB -> User (neutral default for any owner)"),
+    (0x009, 0x64, 0x3c, "default global brightness 100 -> 60 (match User)"),
+    (0x00A, 0x46, 0x3c, "default global contrast 70 -> 60 (match User)"),
+    (0x060, 0x46, 0x3c, "M-BOOK per-mode brightness 70 -> 60 (copy A)"),
+    (0x06A, 0x46, 0x3c, "M-BOOK per-mode brightness 70 -> 60 (copy B)"),
+    (0x074, 0x46, 0x3c, "M-BOOK per-mode contrast 70 -> 60 (copy C)"),
+    (0x07E, 0x46, 0x3c, "M-BOOK per-mode contrast 70 -> 60 (copy D)"),
+]
+MBOOK_DEFAULTS = [
+    (0x141, 0x05, 0x01, "default Pro Mode: sRGB -> User (neutral default for any owner)"),
+    (0x00A, 0x46, 0x32, "default global contrast 70 -> 50"),
+    (0x009, 0x64, 0x46, "default global brightness 100 -> 70"),
+    (0x074, 0x46, 0x32, "M-BOOK (Office) per-mode contrast 70 -> 50"),
+]
 DEFAULTS = [
     (0x141, 0x05, 0x01, "default Pro Mode: sRGB -> User (0 Eco, 1 User, 2 Anti-Blue, 3 Movie, 4 Office, 5 sRGB)"),
     (0x5D, 0x3C, 0x46, "default User-mode brightness: 60 -> 70 (per-mode table, slot = Pro Mode + 4)"),
@@ -92,7 +112,18 @@ def main() -> None:
     patches = list(NO_LOGO)
     version = b"091"
     extras = False
-    if args and args[0] == "--094":
+    mbook = False
+    mbook_defaults = None
+    if args and args[0] == "--097":
+        version, extras, mbook, mbook_defaults = b"097", True, True, MBOOK_DEFAULTS_097
+        args = args[1:]
+    elif args and args[0] == "--096":
+        version, extras, mbook, mbook_defaults = b"096", True, True, MBOOK_DEFAULTS
+        args = args[1:]
+    elif args and args[0] == "--095":
+        version, extras, mbook = b"095", True, True
+        args = args[1:]
+    elif args and args[0] == "--094":
         version, extras = b"094", True
         args = args[1:]
     elif args and args[0] in ("--light-sleep", "--093"):
@@ -116,7 +147,7 @@ def main() -> None:
         print(f"file {off:#08x} (main {addr:#07x}): {old:08x} -> {new:08x}  {desc}")
 
     if extras:
-        for rel, old, new, desc in DEFAULTS:
+        for rel, old, new, desc in (mbook_defaults if mbook_defaults else DEFAULTS):
             off = MAIN_PART + DEFAULTS_TABLE + rel
             if img[off] != old:
                 sys.exit(f"{off:#x}: expected {old:02x}, found {img[off]:02x}")
@@ -143,6 +174,14 @@ def main() -> None:
         assert len(new) == len(old)
         img[off:off + len(old)] = new
         print(f"file {off:#08x} (main {addr:#07x}): {old.decode()!r} -> {new.decode()!r}  {desc}")
+
+    if mbook:
+        pat = b"\x06Office\x00"; new = b"\x06M-Book\x00"
+        count = img.count(pat)
+        if count == 0:
+            sys.exit("M-BOOK relabel: no 'Office' label slots found")
+        img[:] = img.replace(pat, new)
+        print(f"relabel: {count} 'Office' Pro Mode label slot(s) -> 'M-Book'")
 
     for addr, idx in VERSION_REPLY:
         off = MAIN_PART + addr

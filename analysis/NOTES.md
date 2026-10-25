@@ -115,7 +115,7 @@ Tools: tools/wakebench (sleep/wake timing plus DDC polling), tools/ddcprobe (one
 - A virtual HID device on the Mac is refused by the kernel ("not entitled"; needs Apple-granted com.apple.developer.hid.virtual.device).
 - The only remaining route would be external hardware (e.g. an RP2040 emulating the LG "USB Controls" HID: feature report 0, u16 LE 0-54000) relaying to DDC/CI. The user can't do that.
 - Pairing of the HID controls to a specific screen likely uses a container ID (HIDDisplay framework APIs are keyed by ContainerID). Unconfirmed.
-- Practical solution: DDC/CI sync (MonitorControl, or our own agent using tools/ddc.swift).
+- Practical solution: DDC/CI brightness sync (e.g. MonitorControl).
 
 ## Wake measurement v2 (2026-10-24, on FW.092)
 Three independent signals:

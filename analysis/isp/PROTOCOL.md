@@ -130,7 +130,7 @@ Our custom FW.093 passes that app's validation (verified):
 
 So the app can flash both stock MSI firmware and our FW.091/092/093 on the Mac. Caveats: preview,
 unnotarized, 323UPF profile inferred; flash stock 027 first as an end-to-end test; close MonitorControl
-and the brightness-sync agent during flashing.
+and any DDC brightness app (e.g. MonitorControl) during flashing.
 
 ## Patched updater for the 323UPF controller (2026-10-24)
 The upstream app rejected this unit: "unsupported HID identity." Cause: its MonitorDevice.discover()

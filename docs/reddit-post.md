@@ -6,20 +6,21 @@ I use a MAG 323UPF with a MacBook and got curious about why it took so long to s
 some time pulling apart MSI's stock firmware (FW.027). The result is a small, reproducible patch set and
 some Mac tools. Everything is here: **https://github.com/samparhizkar/msi-mag323upf-custom-firmware**
 
-**What the patched firmware (FW.094) changes**
+**What the patched firmware (FW.097) changes**
 
 - **MSI logo removed**, including after a cold power-on. Pressing the monitor's power button now gets you a
   picture in ~2.8 s instead of 4.8 s (Windows) / 7 s (Mac).
 - **Display P3 colour data in the EDID**, so macOS recognises and colour-manages the panel as P3.
-- **Factory defaults** set to User mode / brightness 70 instead of Eco.
-- **Reports FW.094** both on the OSD and to MSI Gaming Intelligence (the version the app reads turned out
+- **An "M-Book" picture mode** (it replaces the Office mode) tuned to match a MacBook — D65 / 6500K,
+  neutral, in the menu. The default mode stays User, so non-Mac owners aren't affected.
+- **Reports FW.097** both on the OSD and to MSI Gaming Intelligence (the version the app reads turned out
   to be hardcoded separately from the OSD label).
 
 Nothing else is touched: refresh rates, timings, overdrive, HDR and menus are stock.
 
-**Stopwatch results (Windows / Mac), stock → FW.094**
+**Stopwatch results (Windows / Mac), stock → FW.097**
 
-| | Stock | FW.094 |
+| | Stock | FW.097 |
 |---|---|---|
 | Monitor power button on | 4.83 / 7.0 s | 2.84 / 2.73 s |
 | Laptop wakes from standby | 4.63 / ~3.5 s | 3.59 / ~3.3–5.0 s |
@@ -40,15 +41,15 @@ model is a different hardware revision. Don't use it on other models.
 
 - **Native macOS brightness keys.** macOS only does native brightness for Apple displays and the LG
   UltraFine, over a USB protocol the MSI's separate USB chip can't be reprogrammed to speak. The working
-  answer is DDC sync (included), which makes the MacBook's brightness keys and auto-brightness drive the MSI.
+  answer is a DDC brightness app (e.g. MonitorControl), which makes the MacBook's keys and auto-brightness
+  drive the MSI.
 - **MSI's own hidden light-sleep mode.** It's in the stock firmware but never enabled. Forcing it on didn't
   make wake from standby any faster; the laptop renegotiating DisplayPort is most of the wait.
 - **Hidden P3 / Adobe RGB modes.** Only the names exist in the firmware, no colour data behind them.
 - **USB-C hubs.** Through an HP USB-C hub the Mac saw a fake unplug on every wake and 4K was capped at 60 Hz.
   Plugged straight into the monitor's USB-C it wakes cleanly and runs 4K at up to 160 Hz.
 
-**Mac tools in the repo:** brightness sync (MacBook brightness keys/auto-brightness also drive the MSI over
-DDC), a white-point matcher, a status/identity reader over USB, and wake/unplug test tools.
+**Mac tools in the repo:** a white-point matcher, a status/identity reader over USB, and wake/unplug test tools.
 
 **Help wanted:** I got most of the way to a native macOS flasher (the USB protocol works, and I found MSI's
 real update-mode command) but the scaler doesn't answer the flash commands yet. If anyone can capture

@@ -9,7 +9,20 @@ Measured times are the owner's stopwatch results (seconds, Windows / Mac), stock
 Since 2026-10-25 every build also reports its own version over USB/DDC (what MSI Gaming Intelligence
 shows). Images built before that date reported 027 there even though the OSD showed the new version.
 
-## FW.094 — recommended
+## FW.097 — recommended
+Everything in FW.094 plus an **M-Book** Pro Mode for Mac users.
+- The **Office** Pro Mode is relabelled **M-Book** (all 10 menu/language slots) and tuned to match a
+  MacBook: 6500K / D65, neutral, brightness and contrast 60 — the same values as stock User mode.
+  (The contrast test confirmed this panel clips above 70; 60 keeps clean highlight headroom.)
+- **User** mode is left exactly stock, and the default Pro Mode is **User** (neutral for any owner).
+  M-Book is there in the menu; selecting it once makes the monitor boot into it.
+- Everything else matches FW.094 (no logo, Display P3 EDID, no light sleep). Wake times unchanged.
+- Reports **097** over USB/DDC and on the OSD.
+- Built with `--097`.
+
+SHA-256: `f2a4698a74298f3b148a1846e5d2f03843231be27bd0c4c73e875a3d8518e0d8`
+
+## FW.094
 Everything in FW.093 **except** light sleep (the monitor uses stock deep standby again).
 - Monitor power button on: 4.83 / 7.0 → 2.84 / 2.73
 - Laptop wakes from standby: 4.63 / 3.4–3.5 → 3.59 / 3.3–5.0
