@@ -1,0 +1,8 @@
+wakescope label=FW092 sleep=15s runs=4
+measures macOS external-display bring-up (incl. DP link training); NOT the physical panel-on instant.
+  run 1: wake->HPD 150 ms | wake->transition-complete 616 ms
+  run 2: wake->HPD 152 ms | wake->transition-complete 619 ms
+  run 3: wake->HPD n/a | wake->transition-complete n/a
+  run 4: wake->HPD 123 ms | wake->transition-complete 589 ms
+
+SUMMARY [FW092]: median wake->transition-complete 616 ms, median wake->HPD 150 ms

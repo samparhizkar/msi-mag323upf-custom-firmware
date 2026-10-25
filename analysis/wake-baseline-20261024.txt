@@ -1,0 +1,4 @@
+FW.027, MAG323UPF on Type-C (DP alt mode), 3840x2160 @120 Hz, HiDPI 2560x1440. 3 runs, 30 s display sleep each.
+macOS display awake after wake request: min 0.007s median 0.007s max 0.013s
+DDC first reply after wake: 0.043-0.052s; VCP D6 (power mode) reads 1 (on) even during standby -> firmware does not report DPMS state over DDC.
+Conclusion: Mac-side signals cannot see backlight/picture-on time; needs optical measurement.

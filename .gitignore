@@ -1,0 +1,16 @@
+# Allowlist: only this project's own code and notes are published.
+# MSI firmware/software, patched images, decompiled MSI code and build outputs stay local.
+/*
+!/.gitignore
+!/README.md
+!/CHANGELOG.md
+!/LICENSE
+!/tools/
+!/analysis/
+!/docs/
+/analysis/**/*.c
+/analysis/decomp/
+*.bin
+*.exe
+*.app
+.DS_Store

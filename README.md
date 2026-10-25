@@ -1,0 +1,125 @@
+# MSI MAG 323UPF — custom firmware patches + macOS tools
+
+Unofficial patches for the **MSI MAG 323UPF** (32" 4K 160 Hz, Novatek NT68501 scaler, AUO M320QAN02.9
+panel), plus a set of macOS tools for using it with a Mac. Built by reverse-engineering MSI's stock
+firmware FW.027.
+
+> **Warning.** Flashing modified firmware is at your own risk. A failed or interrupted flash can leave the
+> monitor unusable. This project is not affiliated with or endorsed by MSI. No firmware images are
+> included; you build them yourself from MSI's official file.
+
+## What the recommended build (FW.094) changes
+
+| Change | Effect |
+|---|---|
+| MSI logo removed, including at cold power-on | Monitor shows a picture 2–4 s sooner after pressing its power button |
+| Display P3 + D65 in all 36 stored EDIDs | macOS recognises and colour-manages the panel as P3 |
+| Factory defaults: Pro Mode **User**, brightness 70 | A factory reset no longer lands in Eco mode |
+| Version **FW.094** on the OSD *and* over USB/DDC | MSI Gaming Intelligence and the OSD both show the new version |
+
+Everything else (refresh rates, timings, overdrive, HDR, menus) is stock. See [CHANGELOG.md](CHANGELOG.md)
+for all builds, including the experimental light-sleep one.
+
+### Measured (seconds, stopwatch, Windows / Mac)
+
+| Scenario | Stock FW.027 | FW.094 |
+|---|---|---|
+| Monitor power button on (cable connected) | 4.83 / 7.0 | **2.84 / 2.73** |
+| Laptop wakes from standby | 4.63 / 3.4–3.5 | 3.59 / 3.3–5.0 |
+| Cable reconnect | 7.0 / 4.84 | 7.49 / 5.16 (unchanged: host-side) |
+
+An experimental "light sleep" patch (keep the scaler powered in standby, FW.092/093) gave **no** measurable
+wake improvement, so FW.094 leaves standby stock.
+
+## Which monitors this is for
+
+Only the **MAG 323UPF on the 0XX firmware line**: stock firmware **FW.027**, OSD shows `FW.0xx`.
+MSI's FW.107 file for this model is a different hardware revision (1XX line, different boot loader).
+Do not use this on other models, including the MAG 322UPF or MAG 321UP.
+
+## Build the firmware
+
+You need MSI's official `MSI_MAG_323UPF_FW.027_E782.bin`:
+
+```
+SHA-256  c8720f6bffabdfe51cf39e889423cda4095c4f0dc406648ba1158a23d6b1a4b7
+```
+
+```sh
+python3 -I tools/patch_fw027.py --094 MSI_MAG_323UPF_FW.027_E782.bin MSI_MAG_323UPF_FW.094_E782.bin
+shasum -a 256 MSI_MAG_323UPF_FW.094_E782.bin
+# expect afcc75c966a530833afc1c1c48ec6ece8e87012a3565ea5535314b888b17ded0
+```
+
+The script refuses any input that is not the stock FW.027 image, checks every byte it changes, and keeps
+the stock boot region and whole-file checksum (`E782`), so keep that suffix in the file name.
+Other options: no flag = FW.091, `--light-sleep` = FW.092, `--093` = FW.093.
+
+## Flash it
+
+Use **MSI Gaming Intelligence on Windows**, following MSI's own monitor firmware upgrade guide, and select
+the `MSI_MAG_323UPF_FW.094_E782.bin` file you built. Keep the cable connected and the monitor powered
+until it finishes. To go back, flash the stock FW.027 file the same way. (Untested: whether MSI's app
+treats FW.027 as a downgrade from FW.094 and refuses.)
+
+There is no working macOS flasher yet; see [Native macOS flashing](#native-macos-flashing-research).
+
+## macOS tools
+
+Build any tool with `swiftc -O -o <name> tools/ddc.swift tools/<tool>/main.swift` (tools that do not
+talk DDC don't need `ddc.swift`).
+
+| Tool | What it does |
+|---|---|
+| `msiflash status` / `identify` | Display mode, input, power, brightness, contrast, preset, and the monitor's model, firmware version, panel, calibration checksum over USB (read-only) |
+| `brightness-sync` | Mirrors the MacBook's brightness (keys, slider, auto-brightness) to the MSI over DDC. Install as a login agent with `tools/brightness-sync/install.sh` |
+| `whitematch` | Match the MSI's white point to the MacBook screen by eye (adjusts RGB gains over DDC) |
+| `setprofile` | Show/assign/reset the MSI's ColorSync profile |
+| `ddcprobe` | Read VCP codes once (read-only) |
+| `hpdwatch` | Checks whether the display drops out of macOS's display list during sleep or right after wake |
+| `wakescope`, `wakescope.py`, `wakebench`, `wakecycle.sh` | Wake-time measurement helpers |
+| `patch_fw027.py` | The firmware patcher |
+| `ghidra/*.java` | Ghidra headless scripts used for the analysis |
+
+`msiflash` also contains ISP research commands (`scaler-id`, `validate`, `diag`, `recover`). **Don't run
+them** unless you are continuing the research: they can leave the monitor's USB controller stuck until you
+unplug both the USB-C and power cables for 30 seconds.
+
+## Findings worth knowing
+
+- **Connect a Mac directly by USB-C.** Direct: 4K up to 160 Hz, DDC works, and wake is clean (display
+  back ~0.6 s after the Mac wakes it). Through an HP USB-C multiport hub on the DP input: 4K capped at
+  60 Hz, unreliable DDC, and a fake unplug on every wake (+~1.2 s; once the display didn't come back until
+  replugged).
+- **Text sharpness on a Mac** is mostly macOS scaling: "looks like 2560×1440" renders 5120×2880 and
+  downsamples to the 4K panel (0.75×), which softens text; "looks like 1920×1080" is pixel-exact but
+  large. macOS uses RGB 10-bit over USB-C, so colour format isn't the problem.
+- **HDMI 2.1** is already advertised at the maximum: 48 Gbps (FRL 12G×4), DSC, VRR 48–160 Hz, ALLM.
+- The version MSI's app reads is hardcoded separately from the OSD label (three instructions in the
+  firmware's USB/DDC command handler); details in [analysis/NOTES.md](analysis/NOTES.md).
+
+## Native macOS flashing (research)
+
+Not finished. What works on macOS: the full USB HID transport to the monitor's controller (1462:3FA4) and
+all normal-mode reads. Entering ISP with MSI's own unlock command (`"580040:\r"` on report ID 1) is safe
+on this unit, but the scaler did not answer ISP register reads afterwards, so erase/program was never
+attempted. A USB capture of MSI's Windows tool during a real flash would likely close the gap. Full notes:
+[analysis/isp/PROTOCOL.md](analysis/isp/PROTOCOL.md).
+
+The independent [msi-monitor-updater](https://github.com/danielheimburg/msi-monitor-updater) project
+(MIT) was invaluable for the HID transport details. On this unit its HID-descriptor and panel-name checks
+reject the controller, and the ISP identify command it uses (`A0 …` on report ID 4), sent from our own
+tool, put this unit's controller into its Nuvoton bootloader (recovered with a full power cut).
+
+## Layout
+
+```
+tools/            patcher + macOS tools (Swift, Python, Ghidra scripts)
+analysis/         research notes, ISP protocol notes, wake measurements
+CHANGELOG.md      every build, with hashes
+```
+
+## License
+
+MIT for the code and documentation in this repository. MSI firmware and software are not included and
+remain MSI's property.

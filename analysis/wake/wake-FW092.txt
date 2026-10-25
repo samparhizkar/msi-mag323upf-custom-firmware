@@ -1,0 +1,15 @@
+wakescope label=FW092  (short=15s long=90s runs=3)
+NOTE: measures scaler/DDC + macOS readiness, NOT the physical backlight-on instant (needs slow-mo).
+short run 1:
+  [short-1] scaler-during-sleep: ON (light sleep) | wake→DDC: 5 ms | wake→D6=on: 5 ms | wake→macOS-active: 5 ms
+short run 2:
+  [short-2] scaler-during-sleep: ON (light sleep) | wake→DDC: 5 ms | wake→D6=on: 5 ms | wake→macOS-active: 5 ms
+short run 3:
+  [short-3] scaler-during-sleep: ON (light sleep) | wake→DDC: 1 ms | wake→D6=on: 1 ms | wake→macOS-active: 1 ms
+long run 1:
+  [long-1] scaler-during-sleep: ON (light sleep) | wake→DDC: 1 ms | wake→D6=on: 1 ms | wake→macOS-active: 1 ms
+long run 2:
+  [long-2] scaler-during-sleep: ON (light sleep) | wake→DDC: 6 ms | wake→D6=on: 6 ms | wake→macOS-active: 6 ms
+
+SUMMARY [FW092]: median wake→DDC 5 ms, median wake→D6=on 5 ms
+scaler-during-sleep seen: ON (light sleep)
