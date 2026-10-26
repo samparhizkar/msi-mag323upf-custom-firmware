@@ -8,31 +8,30 @@ firmware FW.027.
 > monitor unusable. This project is not affiliated with or endorsed by MSI. No firmware images are
 > included; you build them yourself from MSI's official file.
 
-## What the recommended build (FW.097) changes
+## What the recommended build (FW.098) changes
 
 | Change | Effect |
 |---|---|
 | MSI logo removed, including at cold power-on | Monitor shows a picture 2–4 s sooner after pressing its power button |
-| Display P3 + D65 in all 36 stored EDIDs | macOS recognises and colour-manages the panel as P3 |
-| **M-Book** Pro Mode (replaces the Office mode) | A neutral D65 / 6500K mode tuned to match a MacBook, selectable from the menu |
-| Factory defaults: Pro Mode **User**, 60/60 | A reset lands in a neutral, universal mode (not Eco) |
-| Version **FW.097** on the OSD *and* over USB/DDC | MSI Gaming Intelligence and the OSD both show the new version |
+| Display P3 + D65 in all 36 stored EDIDs | macOS recognises and colour-manages the panel as P3 (in every mode) |
+| Default Pro Mode set to **User** | A reset lands in the neutral mode (6500K/D65, native gamut) that matches a Mac, not Eco |
+| Version **FW.098** on the OSD *and* over USB/DDC | MSI Gaming Intelligence and the OSD both show the new version |
 
 Everything else (refresh rates, timings, overdrive, HDR, menus) is stock. Earlier builds and the
 experimental light-sleep one are in [CHANGELOG.md](CHANGELOG.md).
 
 ### Measured (seconds, stopwatch, Windows / Mac)
 
-| Scenario | Stock FW.027 | FW.097 |
+| Scenario | Stock FW.027 | FW.098 |
 |---|---|---|
 | Monitor power button on (cable connected) | 4.83 / 7.0 | **2.84 / 2.73** |
 | Laptop wakes from standby | 4.63 / 3.4–3.5 | 3.59 / 3.3–5.0 |
 | Cable reconnect | 7.0 / 4.84 | 7.49 / 5.16 (unchanged: host-side) |
 
 The power-on gain is the logo removal; wake and reconnect are unchanged (that time is host-side DisplayPort
-link training). These numbers are the same across the no-logo builds — M-Book and the colour changes don't
-touch wake. An experimental "light sleep" patch (FW.092/093) gave **no** measurable wake improvement, so
-FW.097 leaves standby stock.
+link training). These numbers are the same across the no-logo builds — the colour changes don't touch
+wake. An experimental "light sleep" patch (FW.092/093) gave **no** measurable wake improvement, so
+FW.098 leaves standby stock.
 
 ## Which monitors this is for
 
@@ -49,21 +48,21 @@ SHA-256  c8720f6bffabdfe51cf39e889423cda4095c4f0dc406648ba1158a23d6b1a4b7
 ```
 
 ```sh
-python3 -I tools/patch_fw027.py --097 MSI_MAG_323UPF_FW.027_E782.bin MSI_MAG_323UPF_FW.097_E782.bin
-shasum -a 256 MSI_MAG_323UPF_FW.097_E782.bin
-# expect f2a4698a74298f3b148a1846e5d2f03843231be27bd0c4c73e875a3d8518e0d8
+python3 -I tools/patch_fw027.py --098 MSI_MAG_323UPF_FW.027_E782.bin MSI_MAG_323UPF_FW.098_E782.bin
+shasum -a 256 MSI_MAG_323UPF_FW.098_E782.bin
+# expect 0567b38804adaffa5e9af8fc19a73d5764dcf874d8bdb86d27d42a7359aa5050
 ```
 
 The script refuses any input that is not the stock FW.027 image, checks every byte it changes, and keeps
 the stock boot region and whole-file checksum (`E782`), so keep that suffix in the file name.
-Other options: no flag = FW.091, `--light-sleep` = FW.092, `--093`, `--094`, `--096` (see CHANGELOG).
+Other options: no flag = FW.091, `--light-sleep` = FW.092, `--093`, `--094` (see CHANGELOG).
 
 ## Flash it
 
 Use **MSI Gaming Intelligence on Windows**, following MSI's own monitor firmware upgrade guide, and select
-the `MSI_MAG_323UPF_FW.097_E782.bin` file you built. Keep the cable connected and the monitor powered
+the `MSI_MAG_323UPF_FW.098_E782.bin` file you built. Keep the cable connected and the monitor powered
 until it finishes, then do a menu **Reset** once so the new defaults load. To go back, flash the stock
-FW.027 file the same way. (Untested: whether MSI's app treats FW.027 as a downgrade from FW.097 and refuses.)
+FW.027 file the same way. (Untested: whether MSI's app treats FW.027 as a downgrade from FW.098 and refuses.)
 
 There is no working macOS flasher yet; see [Native macOS flashing](#native-macos-flashing-research).
 

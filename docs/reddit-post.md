@@ -6,21 +6,21 @@ I use a MAG 323UPF with a MacBook and got curious about why it took so long to s
 some time pulling apart MSI's stock firmware (FW.027). The result is a small, reproducible patch set and
 some Mac tools. Everything is here: **https://github.com/samparhizkar/msi-mag323upf-custom-firmware**
 
-**What the patched firmware (FW.097) changes**
+**What the patched firmware (FW.098) changes**
 
 - **MSI logo removed**, including after a cold power-on. Pressing the monitor's power button now gets you a
   picture in ~2.8 s instead of 4.8 s (Windows) / 7 s (Mac).
 - **Display P3 colour data in the EDID**, so macOS recognises and colour-manages the panel as P3.
-- **An "M-Book" picture mode** (it replaces the Office mode) tuned to match a MacBook — D65 / 6500K,
-  neutral, in the menu. The default mode stays User, so non-Mac owners aren't affected.
-- **Reports FW.097** both on the OSD and to MSI Gaming Intelligence (the version the app reads turned out
+- **Default picture mode set to User** — the neutral mode (6500K/D65, native gamut) that, with the P3
+  EDID above, matches a MacBook. Every mode is otherwise left stock.
+- **Reports FW.098** both on the OSD and to MSI Gaming Intelligence (the version the app reads turned out
   to be hardcoded separately from the OSD label).
 
 Nothing else is touched: refresh rates, timings, overdrive, HDR and menus are stock.
 
-**Stopwatch results (Windows / Mac), stock → FW.097**
+**Stopwatch results (Windows / Mac), stock → FW.098**
 
-| | Stock | FW.097 |
+| | Stock | FW.098 |
 |---|---|---|
 | Monitor power button on | 4.83 / 7.0 s | 2.84 / 2.73 s |
 | Laptop wakes from standby | 4.63 / ~3.5 s | 3.59 / ~3.3–5.0 s |

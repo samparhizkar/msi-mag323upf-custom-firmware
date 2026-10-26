@@ -9,16 +9,19 @@ Measured times are the owner's stopwatch results (seconds, Windows / Mac), stock
 Since 2026-10-25 every build also reports its own version over USB/DDC (what MSI Gaming Intelligence
 shows). Images built before that date reported 027 there even though the OSD showed the new version.
 
-## FW.097 — recommended
-Everything in FW.094 plus an **M-Book** Pro Mode for Mac users.
-- The **Office** Pro Mode is relabelled **M-Book** (all 10 menu/language slots) and tuned to match a
-  MacBook: 6500K / D65, neutral, brightness and contrast 60 — the same values as stock User mode.
-  (The contrast test confirmed this panel clips above 70; 60 keeps clean highlight headroom.)
-- **User** mode is left exactly stock, and the default Pro Mode is **User** (neutral for any owner).
-  M-Book is there in the menu; selecting it once makes the monitor boot into it.
-- Everything else matches FW.094 (no logo, Display P3 EDID, no light sleep). Wake times unchanged.
-- Reports **097** over USB/DDC and on the OSD.
-- Built with `--097`.
+## FW.098 — recommended
+Everything in FW.094, with the default Pro Mode set to **User** and no other mode changes.
+- Default Pro Mode: sRGB → **User** — the neutral mode (6500K / D65, native gamut) that matches a Mac,
+  via the Display P3 EDID. Every Pro Mode, User and Office included, is left exactly stock.
+- No logo, Display P3 EDID in all 36 slots, no light sleep. Wake times unchanged from FW.094.
+- Reports **098** over USB/DDC and on the OSD.
+- Built with `--098`.
+
+SHA-256: `0567b38804adaffa5e9af8fc19a73d5764dcf874d8bdb86d27d42a7359aa5050`
+
+## FW.097 (superseded)
+Added an **M-Book** Pro Mode (relabelled Office, tuned to match User). Dropped in favour of FW.098, which
+leaves the modes stock — M-Book was effectively a duplicate of User. No longer built by the patcher.
 
 SHA-256: `f2a4698a74298f3b148a1846e5d2f03843231be27bd0c4c73e875a3d8518e0d8`
 
